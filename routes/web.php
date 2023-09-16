@@ -20,3 +20,4 @@ $router->get('/', function () use ($router) {
 $router->get("api/leaflets", "LeafletController@getLeaflets");
 $router->get("api/banners", "BannerController@getBanners");
 $router->get("api/product/{id}", "ProductController@getProductDetail");
+$router->get("api/productList", "ProductController@getFilterLIst");
