@@ -46,7 +46,7 @@ class BannerController extends Controller
             if(sizeof($params) > 0) { 
                 $days_tolerance = $params["days_tolerance"];
                 $num_of_rows_required = $params["num_of_rows_required"];
-                $arrData = DB::select("EXEC [dbo].[sp_proc_get_Leaflets] @days_tolerance='".$days_tolerance."', @num_of_rows_required='".$num_of_rows_required."'");
+                $arrData = DB::select("EXEC [dbo].[sp_proc_get_banners] @days_tolerance='".$days_tolerance."', @num_of_rows_required='".$num_of_rows_required."'");
                 
                 return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
             }
