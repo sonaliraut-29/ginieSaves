@@ -39,16 +39,16 @@ class ProductController extends Controller
         $category1 = '';
         $category2 = '';
         $category3 = '';
-        $price_from = '';
-        $price_to = '';
+        $price_from = 0;
+        $price_to = 99999;
         $vendor = '';
         $brand = '';
-        $exclude_accessory = '';
-        $only_discounted = '';
-        $available_only = '';
+        $exclude_accessory = 0;
+        $only_discounted = 0;
+        $available_only = 0;
 
         $search_text = '';
-        $order_by = '';
+        $order_by = 'ORDER BY NEWID()';
         $offset_rows = '';
         $page_size = '';
 
@@ -137,11 +137,11 @@ class ProductController extends Controller
                         break;
 
                         case "offset_rows";
-                            $offset_rows = $params["offset_rows"];
+                            $offset_rows = (int)$params["offset_rows"];
                         break;
 
                         case "page_size";
-                            $page_size = $params["page_size"];
+                            $page_size = (int)$params["page_size"];
                         break;
                     }
                     
@@ -149,7 +149,7 @@ class ProductController extends Controller
             }
             
             // print_r("EXEC [dbo].[sp_proc_get_items] @category1='".$category1."', @category2='".$category2."',@category3='". $category3 ."',@price_from='". $price_from ."',@price_to='". $price_to ."',@vendor='". $vendor ."',@brand='". $brand ."',@exclude_accessory='".$exclude_accessory."',@only_discounted='".$only_discounted."',@available_only='".$available_only."',@search_text='".$search_text."',@order_by='".$order_by."',@offset_rows='".$offset_rows."',@page_size='".$page_size."'");
-            $arrData = DB::select("EXEC [dbo].[sp_proc_get_items] @category1='".$category1."', @category2='".$category2."',@category3='". $category3 ."',@price_from='". $price_from ."',@price_to='". $price_to ."',@vendor='". $vendor ."',@brand='". $brand ."',@exclude_accessory='".$exclude_accessory."',@only_discounted='".$only_discounted."',@available_only='".$available_only."',@search_text='".$search_text."',@order_by='".$order_by."',@offset_rows='".$offset_rows."',@page_size='".$page_size."'");
+            $arrData = DB::select("EXEC [dbo].[sp_proc_get_items] @category1='".$category1."', @category2='".$category2."',@category3='". $category3 ."',@price_from=". $price_from .",@price_to=". $price_to .",@vendor='". $vendor ."',@brand='". $brand ."',@exclude_accessory=".$exclude_accessory.",@only_discounted=".$only_discounted.",@available_only=".$available_only.",@search_text='".$search_text."',@order_by='".$order_by."',@offset_rows=".$offset_rows.",@page_size=".$page_size."");
             
             return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
         } catch(Exception $e) {
