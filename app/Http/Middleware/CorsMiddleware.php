@@ -1,4 +1,4 @@
-?php
+<?php
 
 /**
 * Location: /app/Http/Middleware
