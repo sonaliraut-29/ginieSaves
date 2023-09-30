@@ -49,8 +49,8 @@ class ProductController extends Controller
 
         $search_text = '';
         $order_by = 'ORDER BY NEWID()';
-        $offset_rows = '';
-        $page_size = '';
+        $offset_rows = 0;
+        $page_size = 20;
 
         try {
             if(sizeof($params) > 0) {
@@ -150,6 +150,18 @@ class ProductController extends Controller
             
             // print_r("EXEC [dbo].[sp_proc_get_items] @category1='".$category1."', @category2='".$category2."',@category3='". $category3 ."',@price_from='". $price_from ."',@price_to='". $price_to ."',@vendor='". $vendor ."',@brand='". $brand ."',@exclude_accessory='".$exclude_accessory."',@only_discounted='".$only_discounted."',@available_only='".$available_only."',@search_text='".$search_text."',@order_by='".$order_by."',@offset_rows='".$offset_rows."',@page_size='".$page_size."'");
             $arrData = DB::select("EXEC [dbo].[sp_proc_get_items] @category1='".$category1."', @category2='".$category2."',@category3='". $category3 ."',@price_from=". $price_from .",@price_to=". $price_to .",@vendor='". $vendor ."',@brand='". $brand ."',@exclude_accessory=".$exclude_accessory.",@only_discounted=".$only_discounted.",@available_only=".$available_only.",@search_text='".$search_text."',@order_by='".$order_by."',@offset_rows=".$offset_rows.",@page_size=".$page_size."");
+            
+            return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+        } catch(Exception $e) {
+            print_r($e->getMessage());
+            return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
+        }   
+    }
+
+
+    public function getPopularItems(Request $request) {
+        try {
+            $arrData = DB::select("EXEC [dbo].[sp_proc_get_Popular_Items] @num_of_rows_required=10");
             
             return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
         } catch(Exception $e) {
