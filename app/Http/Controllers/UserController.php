@@ -124,8 +124,13 @@ class UserController extends Controller
                 }
             }
             $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Registration] @Name='".$Name."', @Mobile='".$Mobile."',@Email_ID='". $Email_ID ."',@Gender='". $Gender ."',@City='". $City ."',@Area='". $Area ."',@Nationality='". $Nationality ."',@DOB='".$DOB."',@YOB=".$YOB.",@Paswd='".$Paswd."',@User_ID_Google='".$User_ID_Google."',@User_ID_Apple='".$User_ID_Apple."'");
-            
-            return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+            $userId = User::max("User_ID");
+
+            $res = [
+                "inserted" => $arrData,
+                "userId" => $userId
+            ];
+            return response()->json(['data' => $res, 'status' => 200, "success" => true]);
         } catch(Exception $e) {
             
             return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
