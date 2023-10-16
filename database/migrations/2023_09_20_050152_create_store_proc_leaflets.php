@@ -18,14 +18,22 @@ return new class extends Migration
             ,@num_of_rows_required int = 10
         AS
         BEGIN
-            select main.* 
-            from [dbo].[Leaflets_Combined] as main
-            where data_asof >= dateadd(d, @days_tolerance, getdate())	-- parametered
-            order by newid()
+            SET NOCOUNT ON;
+            DECLARE @Time_Start datetime = getdate()
+            --Declare @days_tolerance int = -10
+            --	,@num_of_rows_required int = 10
+
+            SELECT main.* 
+            FROM [dbo].[Leaflets_Combined] as main
+            WHERE data_asof >= dateadd(d, @days_tolerance, getdate())	-- parametered
+            ORDER BY newid()
             OFFSET 0 ROWS FETCH NEXT @num_of_rows_required ROWS ONLY
 
+            PRINT 'Total execution time taken: ' + ltrim(str(datediff(ms, @Time_Start, getdate()))) + ' ms'
+            RETURN 0;
+
         END";
-        
+                
         DB::unprepared("DROP procedure IF EXISTS sp_proc_get_leaflets");
         DB::unprepared($procedure);
         

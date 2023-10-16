@@ -12,12 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         $procedure = "
-        CREATE PROCEDURE [dbo].[sp_proc_get_Popular_Items] 
+        CREATE   PROCEDURE [dbo].[sp_proc_get_Popular_Items]
             @num_of_rows_required int = 10
         AS
         BEGIN
-
+            SET NOCOUNT ON;
             --Declare @num_of_rows_required int = 10
+            DECLARE @Time_Start datetime = getdate()
 
             Select --top 1000 
                 Vendor, Item_name,	categ,	Brand,	Item_Category, Item_Key,	Item_Key2,		
@@ -26,7 +27,10 @@ return new class extends Migration
             from [Items_Combined] 
             WHERE is_Item_Available = 1
             ORDER BY NEWID()
-            OFFSET 0 ROWS FETCH NEXT @num_of_rows_required ROWS ONLY
+            OFFSET 0 ROWS FETCH NEXT @num_of_rows_required ROWS ONLY;
+
+            PRINT 'Total execution time taken: ' + ltrim(str(datediff(ms, @Time_Start, getdate()))) + ' ms'
+            RETURN 0;
 
         END";
         DB::unprepared("DROP procedure IF EXISTS sp_proc_get_Popular_Items");

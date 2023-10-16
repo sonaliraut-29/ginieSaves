@@ -29,19 +29,9 @@ class LeafletController extends Controller
     public function getLeaflets(Request $request) {
         $params = $request->all();
         
-        // $count  = Leaflet::count();
-        // $itemPerPage = 5;
-        // $offSet = 0;
-
-        // if(sizeof($params) > 1 && array_key_exists("page", $params)) {
-        //     $itemPerPage = array_key_exists("limit", $params) ? $params["limit"]:5;
-        //     $offSet = ($params["page"] * $itemPerPage) - $itemPerPage;
-        // }
-        // $arrLeaflets = Leaflet::get()->take($itemPerPage)->skip($offSet)->toArray();
-        //return response()->json(['data' => $arrLeaflets,"totalCount" => $count]);
-        
         $days_tolerance = 0;
         $num_of_rows_required = 0;
+        
         try {
             if(sizeof($params) > 0) { 
                 $days_tolerance = $params["days_tolerance"];
@@ -54,6 +44,30 @@ class LeafletController extends Controller
             print_r($e->getMessage());
             return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
         }
+    }
 
+    public function getAllLeaflets(Request $request) {
+        $params = $request->all();
+
+        $days_tolerance = 0;
+        $num_of_rows_required=0;
+        $Start_offset = 0;
+        $Vendor = "*";
+        $Category = "*";
+        try {
+            if(sizeof($params) > 0) { 
+                $days_tolerance = $params["days_tolerance"];
+                $num_of_rows_required = $params["num_of_rows_required"];
+                $Start_offset = $params["Start_offset"];
+                $Vendor = $params["Vendor"];
+                $Category = $params["Category"];
+                $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Leaflets_N_Filters] @days_tolerance='".$days_tolerance."', @num_of_rows_required='".$num_of_rows_required."', @Start_offset='".$Start_offset."', @Vendor='".$Vendor."', @Category='".$Category."'");
+                
+                return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+            }
+        } catch(Exception $e) {
+            print_r($e->getMessage());
+            return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
+        }
     }
 }

@@ -43,13 +43,13 @@ return new class extends Migration
         )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
         ) ON [PRIMARY]";
 
-        DB::statement($createTableSqlString);
-        DB::statement('ALTER TABLE [dbo].[Users] ADD  CONSTRAINT [DF_Users_Country_ID]  DEFAULT ((1)) FOR [Country_ID]');
-        DB::statement('ALTER TABLE [dbo].[Users] ADD  CONSTRAINT [DF_Users_Status]  DEFAULT ((0)) FOR [Status]');
-        DB::statement('ALTER TABLE [dbo].[Users] ADD  CONSTRAINT [DF_Is_Email_Verified]  DEFAULT ((0)) FOR [Is_Email_Verified]');
-        DB::statement('ALTER TABLE [dbo].[Users] ADD  CONSTRAINT [DF_Users_Date_Reg]  DEFAULT (getdate()) FOR [Date_Reg]');
-        DB::statement("EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Country ID, User selects from a list' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Users', @level2type=N'COLUMN',@level2name=N'Country_ID'");
-        DB::statement("EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'System Generated' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Users', @level2type=N'COLUMN',@level2name=N'User_ID'");
+        // DB::statement($createTableSqlString);
+        // DB::statement('ALTER TABLE [dbo].[Users] ADD  CONSTRAINT [DF_Users_Country_ID]  DEFAULT ((1)) FOR [Country_ID]');
+        // DB::statement('ALTER TABLE [dbo].[Users] ADD  CONSTRAINT [DF_Users_Status]  DEFAULT ((0)) FOR [Status]');
+        // DB::statement('ALTER TABLE [dbo].[Users] ADD  CONSTRAINT [DF_Is_Email_Verified]  DEFAULT ((0)) FOR [Is_Email_Verified]');
+        // DB::statement('ALTER TABLE [dbo].[Users] ADD  CONSTRAINT [DF_Users_Date_Reg]  DEFAULT (getdate()) FOR [Date_Reg]');
+        // DB::statement("EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Country ID, User selects from a list' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Users', @level2type=N'COLUMN',@level2name=N'Country_ID'");
+        // DB::statement("EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'System Generated' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'Users', @level2type=N'COLUMN',@level2name=N'User_ID'");
     }
 
     /**

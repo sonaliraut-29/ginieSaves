@@ -46,7 +46,8 @@ class BannerController extends Controller
             if(sizeof($params) > 0) { 
                 $days_tolerance = $params["days_tolerance"];
                 $num_of_rows_required = $params["num_of_rows_required"];
-                $arrData = DB::select("EXEC [dbo].[sp_proc_get_banners] @days_tolerance='".$days_tolerance."', @num_of_rows_required='".$num_of_rows_required."'");
+
+                $arrData = DB::select("EXEC [dbo].[sp_proc_get_banners] @days_tolerance=".$days_tolerance.", @num_of_rows_required=".$num_of_rows_required);
                 
                 return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
             }
@@ -54,6 +55,30 @@ class BannerController extends Controller
             print_r($e->getMessage());
             return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
         }
+    }
 
+    public function getAllBanners(Request $request) {
+        $params = $request->all();
+
+        $days_tolerance = 0;
+        $num_of_rows_required=0;
+        $Start_offset = 0;
+        $Vendor = "*";
+        $Category = "*";
+        try {
+            if(sizeof($params) > 0) { 
+                $days_tolerance = $params["days_tolerance"];
+                $num_of_rows_required = $params["num_of_rows_required"];
+                $Start_offset = $params["Start_offset"];
+                $Vendor = $params["Vendor"];
+                $Category = $params["Category"];
+                $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Banners_N_Filters] @days_tolerance='".$days_tolerance."', @num_of_rows_required='".$num_of_rows_required."', @Start_offset='".$Start_offset."', @Vendor='".$Vendor."', @Category='".$Category."'");
+                
+                return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+            }
+        } catch(Exception $e) {
+            print_r($e->getMessage());
+            return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
+        }
     }
 }

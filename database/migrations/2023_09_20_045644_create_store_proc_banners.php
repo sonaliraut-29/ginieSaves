@@ -12,16 +12,25 @@ return new class extends Migration
     public function up(): void
     {
         $procedure = "
-        CREATE PROCEDURE [dbo].[sp_proc_get_banners] 
+        CREATE   PROCEDURE [dbo].[sp_proc_get_banners]
             @days_tolerance int = -10
             ,@num_of_rows_required int = 10
         AS
         BEGIN
+
+            --Declare @days_tolerance int = -10
+            --	,@num_of_rows_required int = 10
+            declare @Time_Start	datetime = getdate()
+
             select main.* 
             from [dbo].[Banners_Combined] as main
             where data_asof >= dateadd(d, @days_tolerance, getdate())	-- parametered
             order by newid()
             OFFSET 0 ROWS FETCH NEXT @num_of_rows_required ROWS ONLY
+
+            PRINT 'Total execution time taken: ' + ltrim(str(datediff(ms, @Time_Start, getdate()))) + ' ms'
+
+            Return 0;
 
         END";
         
