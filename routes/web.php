@@ -31,6 +31,7 @@ $router->put("api/updateProfile", "UserController@updateProfile");
 $router->post("api/deleteAccount", "UserController@deleteAccount");
 
 $router->get("api/categories", "ProductController@getCategories");
+$router->get("api/subCategories", "ProductCOntroller@getSubcategories");
 
 $router->get("api/leafletsPaginate","LeafletController@getAllLeaflets");
 $router->get("api/BannersPaginate","BannerController@getAllBanners");
@@ -38,3 +39,4 @@ $router->get("api/BannersPaginate","BannerController@getAllBanners");
 $router->post("api/addToFavourites", "UserController@addToFavourites");
 $router->get("api/getFavourites", "UserController@getFavourites");
 $router->get("api/removeFavourites","UserController@removeFavourites");
+$router->get("api/userDetails", "UserController@userDetails");

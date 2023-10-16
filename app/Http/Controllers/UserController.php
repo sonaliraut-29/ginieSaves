@@ -123,14 +123,18 @@ class UserController extends Controller
                     }
                 }
             }
-            $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Registration] @Name='".$Name."', @Mobile='".$Mobile."',@Email_ID='". $Email_ID ."',@Gender='". $Gender ."',@City='". $City ."',@Area='". $Area ."',@Nationality='". $Nationality ."',@DOB='".$DOB."',@YOB=".$YOB.",@Paswd='".$Paswd."',@User_ID_Google='".$User_ID_Google."',@User_ID_Apple='".$User_ID_Apple."'");
-            $userId = User::max("User_ID");
+            if(sizeof($errors) > 0 ) {
+                return response()->json(['data' => $errors, 'status' => 400, "success" => false]);
+            } else {
+                $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Registration] @Name='".$Name."', @Mobile='".$Mobile."',@Email_ID='". $Email_ID ."',@Gender='". $Gender ."',@City='". $City ."',@Area='". $Area ."',@Nationality='". $Nationality ."',@DOB='".$DOB."',@YOB=".$YOB.",@Paswd='".$Paswd."',@User_ID_Google='".$User_ID_Google."',@User_ID_Apple='".$User_ID_Apple."'");
+                $userId = User::max("User_ID");
 
-            $res = [
-                "inserted" => $arrData,
-                "userId" => $userId
-            ];
-            return response()->json(['data' => $res, 'status' => 200, "success" => true]);
+                $res = [
+                    "inserted" => $arrData,
+                    "userId" => $userId
+                ];
+                return response()->json(['data' => $res, 'status' => 200, "success" => true]);
+            }
         } catch(Exception $e) {
             
             return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
@@ -172,25 +176,36 @@ class UserController extends Controller
 
         $Email_ID = "";
         $Paswd = "";
-
+        
+        $errors = [];
+        
         if(sizeof($params) > 0) {
             foreach ($params as $key => $value) {
                 switch($key) {
                     case "Email_ID":
                         $Email_ID = $params["Email_ID"];
+                        if($Email_ID == "") {
+                            $errors = $errors->push((object)['Email_ID' => "Email_ID can not be empty"]);
+                        }
                     break;
 
                     case "Paswd":
                         $Paswd = $params["Paswd"];
+                        if($Paswd == "") {
+                            $errors = $errors->push((object)['Paswd' => "Paswd can not be empty"]);
+                        }
                     break;
                 }
             }
         }
 
         try {
-            
-            $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Password] @Email_ID='". $Email_ID ."',@Paswd='".$Paswd."'");
-            return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+            if(sizeof($errors) > 0 ) {
+                return response()->json(['data' => $errors, 'status' => 400, "success" => false]);
+            } else {
+                $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Password] @Email_ID='". $Email_ID ."',@Paswd='".$Paswd."'");
+                return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+            }
         } catch(Exception $e) {
             
             return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
@@ -319,11 +334,10 @@ class UserController extends Controller
                 }
             }
 
-            $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Registration] @Name='".$Name."', @Mobile='".$Mobile."',@Email_ID='". $Email_ID ."',@Gender='". $Gender ."',@City='". $City ."',@Area='". $Area ."',@Nationality='". $Nationality ."',@DOB='".$DOB."',@YOB=".$YOB.",@User_ID_Google='".$User_ID_Google."',@User_ID_Apple='".$User_ID_Apple."'");
             if(sizeof($errors) > 0 ) {
                 return response()->json(['data' => $errors, 'status' => 400, "success" => false]);
             } else {
-
+                $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Prof_Update] @Name='".$Name."', @Mobile='".$Mobile."',@Email_ID='". $Email_ID ."',@Gender='". $Gender ."',@City='". $City ."',@Area='". $Area ."',@Nationality='". $Nationality ."',@DOB='".$DOB."',@YOB=".$YOB.",@User_ID_Google='".$User_ID_Google."',@User_ID_Apple='".$User_ID_Apple."'");
                 return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
             }
         } catch(Exception $e) {
@@ -385,11 +399,10 @@ class UserController extends Controller
                 }
             }
 
-            $arrData = DB::statement("EXEC [dbo].[sp_proc_Add_Favourites] @Country_ID='".$Country_ID."', @User_ID='".$User_ID."',@Vendor='". $Vendor ."',@Item_Key='". $Item_Key ."',@Price='". $Price."'");
             if(sizeof($errors) > 0 ) {
                 return response()->json(['data' => $errors, 'status' => 400, "success" => false]);
             } else {
-
+                $arrData = DB::statement("EXEC [dbo].[sp_proc_Add_Favourites] @Country_ID='".$Country_ID."', @User_ID='".$User_ID."',@Vendor='". $Vendor ."',@Item_Key='". $Item_Key ."',@Price='". $Price."'");
                 return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
             }
         } catch(Exception $e) {
@@ -425,10 +438,10 @@ class UserController extends Controller
                 }
             }
 
-            $arrData = DB::statement("EXEC [dbo].[sp_proc_Get_Favourites] @Country_ID='".$Country_ID."', @User_ID='".$User_ID."'");
             if(sizeof($errors) > 0 ) {
                 return response()->json(['data' => $errors, 'status' => 400, "success" => false]);
             } else {
+                $arrData = DB::statement("EXEC [dbo].[sp_proc_Get_Favourites] @Country_ID='".$Country_ID."', @User_ID='".$User_ID."'");
 
                 return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
             }
@@ -483,11 +496,44 @@ class UserController extends Controller
                 }
             }
 
-            $arrData = DB::statement("EXEC [dbo].[sp_proc_Remove_Favourite] @Country_ID='".$Country_ID."', @User_ID='".$User_ID."',@Vendor='". $Vendor ."',@Item_Key='". $Item_Key ."'");
             if(sizeof($errors) > 0 ) {
                 return response()->json(['data' => $errors, 'status' => 400, "success" => false]);
             } else {
+                $arrData = DB::statement("EXEC [dbo].[sp_proc_Remove_Favourite] @Country_ID='".$Country_ID."', @User_ID='".$User_ID."',@Vendor='". $Vendor ."',@Item_Key='". $Item_Key ."'");
 
+                return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+            }
+        } catch(Exception $e) {
+            
+            return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
+        }
+    }
+
+    public function userDetails(Request $request) {
+        
+        $params = $request->all();
+
+        $Email_ID = "";
+        $errors = [];
+
+        try {
+            if(sizeof($params) > 0) {
+                foreach ($params as $key => $value) {
+                    switch($key) {
+                        case "Name";
+                            $Email_ID = $params['Email_ID'];
+                            if($Country_ID == "") {
+                                $errors = $errors->push((object)['Country_ID' => "Country_ID can not be empty"]);
+                            }
+                        break;
+                    }
+                }
+            }
+
+            if(sizeof($errors) > 0 ) {
+                return response()->json(['data' => $errors, 'status' => 400, "success" => false]);
+            } else {
+                $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Get_Details] @@Email_ID='".$Email_ID);
                 return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
             }
         } catch(Exception $e) {

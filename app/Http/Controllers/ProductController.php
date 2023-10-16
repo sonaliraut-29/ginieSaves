@@ -156,7 +156,6 @@ class ProductController extends Controller
                 }
             }
             
-            // print_r("EXEC [dbo].[sp_proc_get_items] @category1='".$category1."', @category2='".$category2."',@category3='". $category3 ."',@price_from='". $price_from ."',@price_to='". $price_to ."',@vendor='". $vendor ."',@brand='". $brand ."',@exclude_accessory='".$exclude_accessory."',@only_discounted='".$only_discounted."',@available_only='".$available_only."',@search_text='".$search_text."',@order_by='".$order_by."',@offset_rows='".$offset_rows."',@page_size='".$page_size."'");
             $arrData = DB::select("EXEC [dbo].[sp_proc_get_items] @category1='".$category1."', @category2='".$category2."',@category3='". $category3 ."',@price_from=". $price_from .",@price_to=". $price_to .",@vendor='". $vendor ."',@brand='". $brand ."',@exclude_accessory=".$exclude_accessory.",@only_discounted=".$only_discounted.",@available_only=".$available_only.",@search_text='".$search_text."',@order_by='".$order_by."',@offset_rows=".$offset_rows.",@page_size=".$page_size."");
             
             return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
@@ -192,20 +191,29 @@ class ProductController extends Controller
     public function getSubcategories(Request $request) {
         $params = $request->all();
         $Category = "*";
+
+        $errors = [];
+
         try {
             if(sizeof($params) > 0) {
                 foreach ($params as $key => $value) {
                     switch($key) {
                         case "Category";
                             $Category = $params["Category"];
+                             if($Category == "") {
+                                $errors = $errors->push((object)['Category' => "Category can not be empty"]);
+                            }
                         break;
                     }
                     
                 }
             }
-            $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Sub_Catagory] @Category='".$Category."'");
-            
-            return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+            if(sizeof($errors) > 0 ) {
+                return response()->json(['data' => $errors, 'status' => 400, "success" => false]);
+            } else {
+                $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Sub_Catagory] @Category='".$Category."'");
+                return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+            }
         } catch(Exception $e) {
             print_r($e->getMessage());
             return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
