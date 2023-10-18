@@ -39,4 +39,4 @@ $router->get("api/BannersPaginate","BannerController@getAllBanners");
 $router->post("api/addToFavourites", "UserController@addToFavourites");
 $router->get("api/getFavourites", "UserController@getFavourites");
 $router->get("api/removeFavourites","UserController@removeFavourites");
-$router->get("api/userDetails", "UserController@userDetails");
+$router->post("api/userDetails", "UserController@userDetails");
