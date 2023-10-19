@@ -141,7 +141,12 @@ class ProductController extends Controller
                         break;
 
                         case "order_by";
-                            $order_by = " ORDER BY ".$params["order_by"]. " ". $params["sort"];
+                            if("Discount_Percent" == $params["order_by"] ) {
+                                $order_by = " ORDER BY Discount_Percent ".$params["sort"].", Discounted_Price ".$params["sort"];
+                            } else {
+
+                                $order_by = " ORDER BY ".$params["order_by"]. " ". $params["sort"];
+                            }
                         break;
 
                         case "offset_rows";
@@ -157,7 +162,7 @@ class ProductController extends Controller
             }
             
             $exec = "EXEC [dbo].[sp_proc_get_items] @category1='".$category1."', @category2='".$category2."',@category3='". $category3 ."',@price_from=". $price_from .",@price_to=". $price_to .",@vendor='". $vendor ."',@brand='". $brand ."',@exclude_accessory=".$exclude_accessory.",@only_discounted=".$only_discounted.",@available_only=".$available_only.",@search_text='".$search_text."',@order_by='".$order_by."',@offset_rows=".$offset_rows.",@page_size=".$page_size;
-            
+           
             $pdo = \DB::connection()->getPdo();
             $sql = $exec;
             $stmt = $pdo->query($sql);

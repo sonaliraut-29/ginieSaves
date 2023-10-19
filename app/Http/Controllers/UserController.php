@@ -21,7 +21,7 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'refresh', 'create','logout']]);
+        $this->middleware('auth:api', ['except' => ['login', 'refresh', 'create','logout', 'getCities','getGovernate','getCountries']]);
     }
 
     public function create(Request $request) {
@@ -32,29 +32,39 @@ class UserController extends Controller
         $User_ID_Google	= Null;
         $User_ID_Apple	= Null;
 
-        $this->validate($request, [
+        $rules =[
             'email' => 'required|string',
             'password' => 'required|string',
             'Name' => 'required|string',
-            'Gender' => 'required|string',
-            'City' => 'required|string',
-            'DOB' => 'required',
-            'YOB' => 'required',
-            'Area' => 'required|string',
+            // 'Gender' => 'required|string',
+            // 'City' => 'required|string',
+            // 'DOB' => 'required',
+            // 'YOB' => 'required',
+            // 'Area' => 'required|string',
             'Mobile' => 'required',
-            'Nationality'=> 'required|string'
-        ]);
+            'Country_ID'=> 'required|string'
+        ];
+
+        $messages = ["Country_ID.required" => "Nationality is required."];
+        $this->validate($request, $rules, $messages);
 
         
         try {
-            $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Registration] @Name='".$request->Name."', @Mobile='".$request->Mobile."',@email='". $request->email ."',@Gender='". $request->Gender ."',@City='". $request->City ."',@Area='". $request->Area ."',@Nationality='". $request->Nationality ."',@DOB='".$request->DOB."',@YOB=".$request->YOB.",@password='".Hash::make($request->password)."',@User_ID_Google='".$User_ID_Google."',@User_ID_Apple='".$User_ID_Apple."'");
+            $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Registration] @Name='".$request->Name."', @Mobile='".$request->Mobile."',@email='". $request->email ."',@Gender='". $request->Gender ."',@City='". $request->City ."',@Area='". $request->Area ."',@Nationality='". $request->Country_ID ."',@DOB='".$request->DOB."',@YOB='".$request->YOB."',@password='".Hash::make($request->password)."',@User_ID_Google='".$User_ID_Google."',@User_ID_Apple='".$User_ID_Apple."'");
             $userId = User::max("User_ID");
             $user = User::where("User_ID", $userId)->first();
+            
+            $credentials = $request->only(['email', 'password']);
+
+            if (! $token = Auth::attempt($credentials)) {
+                return response()->json(['message' => 'Invalid credentials'], 401);
+            }
             
             $res = [
                 "inserted" => $arrData,
                 "userId" => $userId,
-                "user" => $user
+                "user" => $user,
+                'access_token' => $token,
             ];
             return response()->json(['data' => $res, 'status' => 200, "success" => true]);
             
@@ -131,33 +141,25 @@ class UserController extends Controller
     public function updateProfile(Request $request) {
         $params = $request->all();
 
-        $Name = "";
-        $Mobile = "";
-        $Email_ID	= '';
-        $Gender		= '';
-        $City		= '';
-        $Area		= '';
-        $Nationality	= '';
-        $DOB			= Null;
-        $YOB			= Null;
+
         $User_ID_Google	= Null;
         $User_ID_Apple	= Null;
 
         $this->validate($request, [
             'email' => 'required|string',
             'Name' => 'required|string',
-            'Gender' => 'required|string',
-            'City' => 'required|string',
-            'DOB' => 'required',
-            'YOB' => 'required',
-            'Ares' => 'required|string',
+            // 'Gender' => 'required|string',
+            // 'City' => 'required|string',
+            // 'DOB' => 'required',
+            // 'YOB' => 'required',
+            // 'Ares' => 'required|string',
             'Mobile' => 'required|number',
-            'Nationality'=> 'required|string'
-        ]);
+            'Country_ID'=> 'required|string'
+        ],['Country_ID.required'=> "Nationality is required."]);
 
         try {
             
-            $arrData = DB::select("EXEC [dbo].[sp_proc_User_Prof_Update] @Name='".$request->Name."', @Mobile='".$request->Mobile."',@email='". $request->email."',@Gender='". $request->Gender ."',@City='". $request->City ."',@Area='". $request->Area ."',@Nationality='". $request->Nationality ."',@DOB='".$request->DOB."',@YOB=".$request->YOB.",@User_ID_Google='".$User_ID_Google."',@User_ID_Apple='".$User_ID_Apple."'");
+            $arrData = DB::select("EXEC [dbo].[sp_proc_User_Prof_Update] @Name='".$request->Name."', @Mobile='".$request->Mobile."',@email='". $request->email."',@Gender='". $request->Gender ."',@City='". $request->City ."',@Area='". $request->Area ."',@Nationality='". $request->Country_ID ."',@DOB='".$request->DOB."',@YOB=".$request->YOB.",@User_ID_Google='".$User_ID_Google."',@User_ID_Apple='".$User_ID_Apple."'");
             return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
             
         } catch(Exception $e) {
@@ -251,5 +253,50 @@ class UserController extends Controller
             'user'         => auth()->user(),
             'expires_in'   => auth()->factory()->getTTL() * 60 * 24
         ]);
+    }
+
+    public function getCities(Request $request, $gov) {
+        try {
+            $string = str_replace("%20", " ", $gov);
+            
+            $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Cities] @Gov='".$string."'");
+            return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+            
+        } catch(Exception $e) {
+            
+            return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
+        }
+    }
+
+    public function getGovernate(Request $request) {
+        try {
+            $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Gov]");
+            return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+            
+        } catch(Exception $e) {
+            
+            return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
+        }
+    }
+
+    public function logout() {
+        auth()->logout();
+
+        return response()->json(['message' => 'Successfully logged out','status' => 200, "success" => true]);
+    }
+
+    public function refresh(){
+        return $this->jsonResponse(auth()->refresh());
+    }
+
+    public function getCountries(Request $request) {
+        try {
+            $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Countries]");
+            return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+            
+        } catch(Exception $e) {
+            
+            return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
+        }
     }
 }
