@@ -20,7 +20,7 @@ $router->get('/', function () use ($router) {
 
 $router->get("api/leaflets", "LeafletController@getLeaflets");
 $router->get("api/banners", "BannerController@getBanners");
-$router->get("api/product", "ProductController@getProductDetail");
+$router->get("api/product/{Vendor}/{ItemKey}", "ProductController@getProductDetail");
 $router->get("api/productList", "ProductController@getFilterLIst");
 $router->get("api/popularItems", "ProductController@getPopularItems");
 
@@ -37,8 +37,8 @@ $router->get("api/leafletsPaginate","LeafletController@getAllLeaflets");
 $router->get("api/BannersPaginate","BannerController@getAllBanners");
 
 $router->post("api/addToFavourites", "UserController@addToFavourites");
-$router->get("api/getFavourites", "UserController@getFavourites");
-$router->get("api/removeFavourites","UserController@removeFavourites");
+$router->get("api/getFavourites/{Country_ID}/{User_ID}", "UserController@getFavourites");
+$router->post("api/removeFavourites","UserController@removeFavourites");
 $router->post("api/userDetails", "UserController@userDetails");
 
 $router->get("api/cities/{gov}", "UserController@getCities");

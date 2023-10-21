@@ -25,14 +25,10 @@ class ProductController extends Controller
 
     //
 
-    public function getProductDetail(Request $request) {
-        $params = $request->all();
-        
-        $Vendor = "";
-        $Item_Key = "";
+    public function getProductDetail(Request $request,$Vendor, $ItemKey) {
 
         try {
-            $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Item_Details] @Vendor='".$Vendor."', @Item_Key='".$Item_Key."'");
+            $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Item_Details] @Vendor='".$Vendor."', @Item_Key='".$ItemKey."'");
             
             return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
         } catch(Exception $e) {

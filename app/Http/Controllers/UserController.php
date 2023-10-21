@@ -42,15 +42,15 @@ class UserController extends Controller
             // 'YOB' => 'required',
             // 'Area' => 'required|string',
             'Mobile' => 'required',
-            'Country_ID'=> 'required|string'
+            'Nationality'=> 'required|string'
         ];
 
-        $messages = ["Country_ID.required" => "Nationality is required."];
+        $messages = ["Nationality.required" => "Nationality is required."];
         $this->validate($request, $rules, $messages);
 
         
         try {
-            $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Registration] @Name='".$request->Name."', @Mobile='".$request->Mobile."',@email='". $request->email ."',@Gender='". $request->Gender ."',@City='". $request->City ."',@Area='". $request->Area ."',@Nationality='". $request->Country_ID ."',@DOB='".$request->DOB."',@YOB='".$request->YOB."',@password='".Hash::make($request->password)."',@User_ID_Google='".$User_ID_Google."',@User_ID_Apple='".$User_ID_Apple."'");
+            $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Registration] @Name='".$request->Name."', @Mobile='".$request->Mobile."',@email='". $request->email ."',@Gender='". $request->Gender ."',@City='". $request->City ."',@Area='". $request->Area ."',@Nationality='". $request->Nationality ."',@DOB='".$request->DOB."',@YOB='".$request->YOB."',@password='".Hash::make($request->password)."',@User_ID_Google='".$User_ID_Google."',@User_ID_Apple='".$User_ID_Apple."'");
             $userId = User::max("User_ID");
             $user = User::where("User_ID", $userId)->first();
             
@@ -111,7 +111,7 @@ class UserController extends Controller
 
         try {
            
-            $arrData = DB::select("EXEC [dbo].[sp_proc_User_Password] @email='". $request->email ."',@password='".Hash::make($request->password)."'");
+            $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Password] @email='". $request->email ."',@password='".Hash::make($request->password)."'");
             return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
         
         } catch(Exception $e) {
@@ -153,13 +153,13 @@ class UserController extends Controller
             // 'DOB' => 'required',
             // 'YOB' => 'required',
             // 'Ares' => 'required|string',
-            'Mobile' => 'required|number',
-            'Country_ID'=> 'required|string'
-        ],['Country_ID.required'=> "Nationality is required."]);
+            'Mobile' => 'required',
+            'Nationality'=> 'required|string'
+        ],['Nationality.required'=> "Nationality is required."]);
 
         try {
             
-            $arrData = DB::select("EXEC [dbo].[sp_proc_User_Prof_Update] @Name='".$request->Name."', @Mobile='".$request->Mobile."',@email='". $request->email."',@Gender='". $request->Gender ."',@City='". $request->City ."',@Area='". $request->Area ."',@Nationality='". $request->Country_ID ."',@DOB='".$request->DOB."',@YOB=".$request->YOB.",@User_ID_Google='".$User_ID_Google."',@User_ID_Apple='".$User_ID_Apple."'");
+            $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Prof_Update] @Name='".$request->Name."', @Mobile='".$request->Mobile."',@email='". $request->email."',@Gender='". $request->Gender ."',@City='". $request->City ."',@Area='". $request->Area ."',@Nationality='". $request->Nationality ."',@DOB='".$request->DOB."',@YOB=".$request->YOB.",@User_ID_Google='".$User_ID_Google."',@User_ID_Apple='".$User_ID_Apple."'");
             return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
             
         } catch(Exception $e) {
@@ -189,14 +189,11 @@ class UserController extends Controller
         }
     }
 
-    public function getFavourites(Request $request) {
-        $this->validate($request, [
-            'Country_ID' => 'required|string',
-            'User_ID' => 'required|string',
-        ]);
+    public function getFavourites(Request $request,$Country_ID, $User_ID) {
+        
         try {
             
-            $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Favourites] @Country_ID='".$request->Country_ID."', @User_ID='".$request->User_ID."'");
+            $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Favourites] @Country_ID='".$Country_ID."', @User_ID='".$User_ID."'");
 
             return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
             
@@ -210,15 +207,15 @@ class UserController extends Controller
         $params = $request->all();
 
         $this->validate($request, [
-            'Country_ID' => 'required|string',
-            'User_ID' => 'required|string',
+            'Country_ID' => 'required',
+            'User_ID' => 'required',
             'Vendor' => 'required|string',
-            'Item_Key' => 'required|string',
+            'Item_Key' => 'required',
         ]);
 
         try {
             
-            $arrData = DB::select("EXEC [dbo].[sp_proc_Remove_Favourite] @Country_ID='".$request->Country_ID."', @User_ID='".$request->User_ID."',@Vendor='". $request->Vendor ."',@Item_Key='". $request->Item_Key ."'");
+            $arrData = DB::statement("EXEC [dbo].[sp_proc_Remove_Favourite] @Country_ID=".$request->Country_ID.", @User_ID=".$request->User_ID.",@Vendor='". $request->Vendor ."',@Item_Key=". $request->Item_Key);
 
             return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
             
