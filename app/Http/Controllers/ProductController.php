@@ -40,9 +40,9 @@ class ProductController extends Controller
 
     public function getFilterLIst(Request $request) {
         $params = $request->all();
-        $category1 = '';
-        $category2 = '';
-        $category3 = '';
+        $category = '';
+        $sub_category = '';
+        // $category3 = '';
         $price_from = 0;
         $price_to = 99999;
         $vendor = '';
@@ -157,7 +157,7 @@ class ProductController extends Controller
                 }
             }
             
-            $exec = "EXEC [dbo].[sp_proc_get_items] @category1='".$category1."', @category2='".$category2."',@category3='". $category3 ."',@price_from=". $price_from .",@price_to=". $price_to .",@vendor='". $vendor ."',@brand='". $brand ."',@exclude_accessory=".$exclude_accessory.",@only_discounted=".$only_discounted.",@available_only=".$available_only.",@search_text='".$search_text."',@order_by='".$order_by."',@offset_rows=".$offset_rows.",@page_size=".$page_size;
+            $exec = "EXEC [dbo].[sp_proc_get_items] @category='".$category."', @sub_category='".$sub_category."',@price_from=". $price_from .",@price_to=". $price_to .",@vendor='". $vendor ."',@brand='". $brand ."',@exclude_accessory=".$exclude_accessory.",@only_discounted=".$only_discounted.",@available_only=".$available_only.",@search_text='".$search_text."',@order_by='".$order_by."',@offset_rows=".$offset_rows.",@page_size=".$page_size;
            
             $pdo = \DB::connection()->getPdo();
             $sql = $exec;
