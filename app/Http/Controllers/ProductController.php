@@ -74,6 +74,38 @@ class ProductController extends Controller
                             $concatBrands = "''".$params['brand']."''";
                         }
                     }
+                    $concatCategory = '';
+                    if("category" == $key && "" !== $params["category"]) {
+                        $splitCategory = explode(',', $params["category"]);
+                        $concatCategory = '';
+                        if(sizeof($splitCategory) > 1) {
+                            for($i = 0; $i < sizeof($splitCategory); $i++ ) {
+                                if($i !== sizeof($splitCategory) -1 ) {
+                                    $concatCategory .= "''".$splitCategory[$i]."'',";
+                                } else {
+                                    $concatCategory .= "''".$splitCategory[$i]."''";
+                                }
+                            }
+                        } else {
+                            $concatCategory = "''".$params['category']."''";
+                        }
+                    }
+                    $concatSubCategory = "";
+                    if("sub_category" == $key && "" !== $params["sub_category"]) {
+                        $splitSubCategory = explode(',', $params["sub_category"]);
+                        $concatSubCategory = '';
+                        if(sizeof($splitSubCategory) > 1) {
+                            for($i = 0; $i < sizeof($splitSubCategory); $i++ ) {
+                                if($i !== sizeof($splitSubCategory) -1 ) {
+                                    $concatSubCategory .= "''".$splitSubCategory[$i]."'',";
+                                } else {
+                                    $concatSubCategory .= "''".$splitSubCategory[$i]."''";
+                                }
+                            }
+                        } else {
+                            $concatSubCategory = "''".$params['sub_category']."''";
+                        }
+                    }
 
                     if("vendor" == $key) {
                         $splitVendors = explode(',', $params["vendor"]);
@@ -92,17 +124,17 @@ class ProductController extends Controller
                     }
 
                     switch($key) {
-                        case "category1";
-                            $category1 = $params["category1"];
+                        case "category";
+                            $category = $concatCategory;
                         break;
 
-                        case "category1";
-                            $category2 = $params["category2"];
+                        case "sub_category";
+                            $sub_category = $concatSubCategory;
                         break;
 
-                        case "category3";
-                            $category3 = $params["category3"];
-                        break;
+                        // case "category3";
+                        //     $category3 = $params["category3"];
+                        // break;
 
                         case "price_from";
                             $price_from = $params["price_from"];
@@ -168,11 +200,15 @@ class ProductController extends Controller
             $stmt->nextRowset();
             $rowset2 = $stmt->fetchAll();
 
+            $rowset3 = 0;
+            $rowset4 = 99999;
             if(sizeof($rowset2) > 0) {
+                $rowset3 = $rowset2[0]["Selling_Price_Min"];
+                $rowset4 = $rowset2[0]["Selling_Price_Max"];
                 $rowset2 = $rowset2[0]["Total_Items_Found"];
             }
             
-            return response()->json(['data' => $rowset1,"totalCount"=>$rowset2, 'status' => 200, "success" => true]);
+            return response()->json(['data' => $rowset1,"totalCount" => $rowset2, "min_price" => $rowset3, "max_price" => $rowset4, 'status' => 200, "success" => true]);
         } catch(Exception $e) {
             print_r($e->getMessage());
             return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);

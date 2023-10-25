@@ -59,11 +59,26 @@ class LeafletController extends Controller
                 $days_tolerance = $params["days_tolerance"];
                 $num_of_rows_required = $params["num_of_rows_required"];
                 $Start_offset = $params["Start_offset"];
-                $Vendor = $params["Vendor"];
-                $Category = $params["Category"];
-                $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Leaflets_N_Filters] @days_tolerance='".$days_tolerance."', @num_of_rows_required='".$num_of_rows_required."', @Start_offset='".$Start_offset."', @Vendor='".$Vendor."', @Category='".$Category."'");
+                $Vendor = $params && array_key_exists("Vendor", $params) ? $params["Vendor"]:"*";
+                $Category =  $params && array_key_exists("Category", $params)  ? $params["Category"]:"*";
                 
-                return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+                
+                $exec = "EXEC [dbo].[sp_proc_Get_Leaflets_N_Filters] @days_tolerance=".$days_tolerance.", @num_of_rows_required=".$num_of_rows_required.", @Start_offset='".$Start_offset."', @Vendor='".$Vendor."', @Category='".$Category."'";
+
+                $pdo = \DB::connection()->getPdo();
+                $sql = $exec;
+                $stmt = $pdo->query($sql);
+                $stmt->execute();
+                $rowset1 = $stmt->fetchAll();
+               
+                // $stmt->nextRowset();
+                // $rowset2 = $stmt->fetchAll();
+    
+                // if(sizeof($rowset2) > 0) {
+                //     $rowset2 = $rowset2[0]["Total_Items_Found"];
+                // }
+                
+                return response()->json(['data' => $rowset1, 'status' => 200, "success" => true]);
             }
         } catch(Exception $e) {
             print_r($e->getMessage());

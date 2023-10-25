@@ -171,16 +171,16 @@ class UserController extends Controller
     public function addToFavourites(Request $request) {
         $params = $request->all();
         $this->validate($request, [
-            'Country_ID' => 'required|string',
-            'User_ID' => 'required|string',
-            'Vendor' => 'required|string',
-            'Item_Key' => 'required|string',
-            'Price' => 'required|string',
+            'Country_ID' => 'required',
+            'User_ID' => 'required',
+            'Vendor' => 'required',
+            'Item_Key' => 'required',
+            'Price' => 'required',
         ]);
 
         try {
             
-            $arrData = DB::select("EXEC [dbo].[sp_proc_Add_Favourites] @Country_ID='".$request->Country_ID."', @User_ID='".$request->User_ID."',@Vendor='". $request->Vendor ."',@Item_Key='". $request->Item_Key ."',@Price='". $request->Price."'");
+            $arrData = DB::statement("EXEC [dbo].[sp_proc_Add_Favourites] @Country_ID=".$request->Country_ID.", @User_ID=".$request->User_ID.",@Vendor='". $request->Vendor ."',@Item_Key=". $request->Item_Key .",@Price=". $request->Price."");
             return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
             
         } catch(Exception $e) {
