@@ -106,8 +106,8 @@ class ProductController extends Controller
                             $concatSubCategory = "''".$params['sub_category']."''";
                         }
                     }
-
-                    if("vendor" == $key) {
+                    $concatVendors = '';
+                    if("vendor" == $key && "" !== $params["vendor"]) {
                         $splitVendors = explode(',', $params["vendor"]);
                         $concatVendors = '';
                         if(sizeof($splitVendors) > 1) {
@@ -190,10 +190,12 @@ class ProductController extends Controller
             }
             
             $exec = "EXEC [dbo].[sp_proc_get_items] @category='".$category."', @sub_category='".$sub_category."',@price_from=". $price_from .",@price_to=". $price_to .",@vendor='". $vendor ."',@brand='". $brand ."',@exclude_accessory=".$exclude_accessory.",@only_discounted=".$only_discounted.",@available_only=".$available_only.",@search_text='".$search_text."',@order_by='".$order_by."',@offset_rows=".$offset_rows.",@page_size=".$page_size;
-           
-            $pdo = \DB::connection()->getPdo();
-            $sql = $exec;
-            $stmt = $pdo->query($sql);
+        //    print_r($exec );
+        //     return response()->json(['data' =>$exec, 'status' => 400, "success" => false]);
+
+            $pdo = DB::connection()->getPdo();
+            $stmt = $pdo->prepare($exec,[\PDO::ATTR_CURSOR=>\PDO::CURSOR_SCROLL]);
+            // $stmt = $pdo->query($exec);
             $stmt->execute();
             $rowset1 = $stmt->fetchAll();
            
@@ -202,13 +204,14 @@ class ProductController extends Controller
 
             $rowset3 = 0;
             $rowset4 = 99999;
+            $rowset5 = 0;
             if(sizeof($rowset2) > 0) {
                 $rowset3 = $rowset2[0]["Selling_Price_Min"];
                 $rowset4 = $rowset2[0]["Selling_Price_Max"];
-                $rowset2 = $rowset2[0]["Total_Items_Found"];
+                $rowset5 = $rowset2[0]["Total_Items_Found"];
             }
             
-            return response()->json(['data' => $rowset1,"totalCount" => $rowset2, "min_price" => $rowset3, "max_price" => $rowset4, 'status' => 200, "success" => true]);
+            return response()->json(['data' => $rowset1,"totalCount" => $rowset5, "min_price" => $rowset3, "max_price" => $rowset4, 'status' => 200, "success" => true]);
         } catch(Exception $e) {
             print_r($e->getMessage());
             return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
@@ -264,6 +267,17 @@ class ProductController extends Controller
                 $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Sub_Catagory] @Category='".$Category."'");
                 return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
             }
+        } catch(Exception $e) {
+            print_r($e->getMessage());
+            return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
+        }
+    }
+
+    public function getVendors(Request $request) {
+        try {
+            $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Vendors]");
+            
+            return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
         } catch(Exception $e) {
             print_r($e->getMessage());
             return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);

@@ -23,6 +23,7 @@ $router->get("api/banners", "BannerController@getBanners");
 $router->get("api/product/{Vendor}/{ItemKey}", "ProductController@getProductDetail");
 $router->get("api/productList", "ProductController@getFilterLIst");
 $router->get("api/popularItems", "ProductController@getPopularItems");
+$router->get("api/vendors", "ProductController@getVendors");
 
 $router->post("api/create","UserController@create");
 $router->post("api/login","UserController@login");
