@@ -92,13 +92,32 @@ class BannerController extends Controller
                     }
                 }
 
+                $concatVendors = '*';
+                if($params && array_key_exists("Vendor", $params)) {
+                    $splitVendors = explode(',', $params["Vendor"]);
+                    $concatVendors = '';
+                    if(sizeof($splitVendors) > 1) {
+                        for($i = 0; $i < sizeof($splitVendors); $i++ ) {
+                            if($i !== sizeof($splitVendors) -1 ) {
+                                $concatVendors .= "''".$splitVendors[$i]."'',";
+                            } else {
+                                $concatVendors .= "''".$splitVendors[$i]."''";
+                            }
+                        }
+                    } else if(sizeof($splitVendors) ==1 && "*" !== $splitVendors[0]) {
+                        $concatVendors = "''".$params['Vendor']."''";
+                    } else {
+                        $concatVendors ="*";
+                    }
+                }
 
                 $days_tolerance = $params["days_tolerance"];
                 $num_of_rows_required = $params["num_of_rows_required"];
                 $Start_offset = $params["Start_offset"];
-                $Vendor = $params && array_key_exists("Vendor", $params) ? $params["Vendor"]:"*";
+                $Vendor = $concatVendors;
                 $Category =  $concatCategory;
-                $exec = "EXEC [dbo].[sp_proc_Get_Banners_N_Filters] @days_tolerance='".$days_tolerance."', @num_of_rows_required='".$num_of_rows_required."', @Start_offset='".$Start_offset."', @Vendor='".$Vendor."', @Category='".$Category."'";
+
+                $exec = "SET NOCOUNT ON; EXEC [dbo].[sp_proc_Get_Banners_N_Filters] @days_tolerance=".$days_tolerance.", @num_of_rows_required=".$num_of_rows_required.", @Start_offset=".$Start_offset.", @Vendor='".$Vendor."', @Category='".$Category."'";
 
                 $pdo = \DB::connection()->getPdo();
                 $sql = $exec;
