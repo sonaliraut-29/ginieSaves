@@ -56,11 +56,36 @@ class LeafletController extends Controller
         $Category = "*";
         try {
             if(sizeof($params) > 0) { 
+
+                $concatCategory = '*';
+                if($params && array_key_exists("Category", $params)) {
+                    $splitCategory = explode('|', $params["Category"]);
+                    $concatCategory = '';
+                    if(sizeof($splitCategory) > 1) {
+                        for($i = 0; $i < sizeof($splitCategory); $i++ ) {
+                            $newCategory = str_replace('_and_', ' & ',$splitCategory[$i]);
+                            $newCategory = str_replace('and', '&',$newCategory);
+                            if($i !== sizeof($splitCategory) -1 ) {
+                                $concatCategory .= "''".$newCategory."'',";
+                            } else {
+                                $concatCategory .= "''".$newCategory."''";
+                            }
+                        }
+                    } else if(sizeof($splitCategory) ==1 && "*" !== $splitCategory[0]) {
+                        $newCategory = str_replace('_and_', ' & ',$params['Category']);
+                        $newCategory = str_replace('and', '&',$newCategory);
+
+                        $concatCategory = "''".$newCategory."''";
+                    } else {
+                        $concatCategory = "*";
+                    }
+                }
+
                 $days_tolerance = $params["days_tolerance"];
                 $num_of_rows_required = $params["num_of_rows_required"];
                 $Start_offset = $params["Start_offset"];
                 $Vendor = $params && array_key_exists("Vendor", $params) ? $params["Vendor"]:"*";
-                $Category =  $params && array_key_exists("Category", $params)  ? $params["Category"]:"*";
+                $Category =  $concatCategory;
                 
                 
                 $exec = "EXEC [dbo].[sp_proc_Get_Leaflets_N_Filters] @days_tolerance=".$days_tolerance.", @num_of_rows_required=".$num_of_rows_required.", @Start_offset='".$Start_offset."', @Vendor='".$Vendor."', @Category='".$Category."'";
