@@ -76,34 +76,43 @@ class ProductController extends Controller
                     }
                     $concatCategory = '';
                     if("category" == $key && "" !== $params["category"]) {
-                        $splitCategory = explode(',', $params["category"]);
+                        $splitCategory = explode('|', $params["category"]);
                         $concatCategory = '';
                         if(sizeof($splitCategory) > 1) {
                             for($i = 0; $i < sizeof($splitCategory); $i++ ) {
+                                $newCategory = str_replace('_and_', ' & ',$splitCategory[$i]);
+                                $newCategory = str_replace('and', '&',$newCategory);
                                 if($i !== sizeof($splitCategory) -1 ) {
-                                    $concatCategory .= "''".$splitCategory[$i]."'',";
+                                    $concatCategory .= "''".$newCategory."'',";
                                 } else {
-                                    $concatCategory .= "''".$splitCategory[$i]."''";
+                                    $concatCategory .= "''".$newCategory."''";
                                 }
                             }
                         } else {
-                            $concatCategory = "''".$params['category']."''";
+                            $newCategory = str_replace('_and_', ' & ',$params['category']);
+                            $newCategory = str_replace('and', '&',$newCategory);
+
+                            $concatCategory = "''".$newCategory."''";
                         }
                     }
                     $concatSubCategory = "";
                     if("sub_category" == $key && "" !== $params["sub_category"]) {
-                        $splitSubCategory = explode(',', $params["sub_category"]);
+                        $splitSubCategory = explode('|', $params["sub_category"]);
                         $concatSubCategory = '';
                         if(sizeof($splitSubCategory) > 1) {
                             for($i = 0; $i < sizeof($splitSubCategory); $i++ ) {
+                                $newCategory = str_replace('_and_', ' & ',$splitSubCategory[$i]);
+                                $newCategory = str_replace('and', '&',$newCategory);
                                 if($i !== sizeof($splitSubCategory) -1 ) {
-                                    $concatSubCategory .= "''".$splitSubCategory[$i]."'',";
+                                    $concatSubCategory .= "''".$newCategory."'',";
                                 } else {
-                                    $concatSubCategory .= "''".$splitSubCategory[$i]."''";
+                                    $concatSubCategory .= "''".$newCategory."''";
                                 }
                             }
                         } else {
-                            $concatSubCategory = "''".$params['sub_category']."''";
+                            $newCategory = str_replace('_and_', ' & ',$params['sub_category']);
+                            $newCategory = str_replace('and', '&',$newCategory);
+                            $concatSubCategory = "''".$newCategory."''";
                         }
                     }
                     $concatVendors = '';
@@ -171,6 +180,8 @@ class ProductController extends Controller
                         case "order_by";
                             if("Discount_Percent" == $params["order_by"] ) {
                                 $order_by = " ORDER BY Discount_Percent ".$params["sort"].", Discounted_Price ".$params["sort"];
+                            } else if("Brand" == $params["order_by"] ) {
+                                $order_by = " ORDER BY Brand ".$params["sort"].", Discounted_Price ".$params["sort"];
                             } else {
 
                                 $order_by = " ORDER BY ".$params["order_by"]. " ". $params["sort"];
