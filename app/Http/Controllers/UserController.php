@@ -311,7 +311,7 @@ class UserController extends Controller
             $user = DB::select("Select * from Users where email='".$request->email."'");
             
             if($user && sizeof($user) > 0) {
-                $password = "test123";
+                $password = "Test1234";
                 $data = [
                     "user" => $user[0],
                     "password" => $password
@@ -321,6 +321,7 @@ class UserController extends Controller
                 {
                     $message->to($data["user"]->email)->subject('Regrading Forgot Password!');
                 });
+                DB::table('Users')->where('email', $request->email)->update(['password' => Hash::make($password)]); 
 
                 return response()->json(['data' => ["message"=>"Email sent successfully."], 'status' => 200, "success" => true]);
             } else {
