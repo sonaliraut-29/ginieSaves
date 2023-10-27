@@ -46,3 +46,4 @@ $router->get("api/cities/{gov}", "UserController@getCities");
 $router->get("api/governate", "UserController@getGovernate");
 $router->get("api/logout", "UserController@logout");
 $router->get("api/counrties","UserController@getCountries");
+$router->post("api/forgotPassword", "UserController@forgotPassword");

@@ -9,6 +9,7 @@ use App\Models\User;
 use DB,Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 use Carbon\Carbon;
 
@@ -21,7 +22,7 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'refresh', 'create','logout', 'getCities','getGovernate','getCountries']]);
+        $this->middleware('auth:api', ['except' => ['login', 'refresh', 'create','logout', 'getCities','getGovernate','getCountries','forgotPassword']]);
     }
 
     public function create(Request $request) {
@@ -296,6 +297,35 @@ class UserController extends Controller
             $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Countries]");
             return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
             
+        } catch(Exception $e) {
+            
+            return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
+        }
+    }
+
+    public function forgotPassword(Request $request) {
+        $this->validate($request, [
+            'email' => 'required|string|email',
+        ]);
+        try {
+            $user = DB::select("Select * from Users where email='".$request->email."'");
+            
+            if($user && sizeof($user) > 0) {
+                $password = "test123";
+                $data = [
+                    "user" => $user[0],
+                    "password" => $password
+                ];
+
+                Mail::send('email', $data, function($message) use ($data)
+                {
+                    $message->to($data["user"]->email)->subject('Regrading Forgot Password!');
+                });
+
+                return response()->json(['data' => ["message"=>"Email sent successfully."], 'status' => 200, "success" => true]);
+            } else {
+                return response()->json(['message' =>"Email does not exist." , 'status' => 400, "success" => false]);
+            }
         } catch(Exception $e) {
             
             return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
