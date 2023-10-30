@@ -33,6 +33,7 @@ $router->post("api/deleteAccount", "UserController@deleteAccount");
 
 $router->get("api/categories", "ProductController@getCategories");
 $router->get("api/subCategories", "ProductController@getSubcategories");
+$router->get("api/brands", "ProductController@getBrands");
 
 $router->get("api/leafletsPaginate","LeafletController@getAllLeaflets");
 $router->get("api/BannersPaginate","BannerController@getAllBanners");

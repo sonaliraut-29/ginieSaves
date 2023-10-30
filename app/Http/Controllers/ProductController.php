@@ -40,6 +40,7 @@ class ProductController extends Controller
 
     public function getFilterLIst(Request $request) {
         $params = $request->all();
+        $user_id = null;
         $category = '';
         $sub_category = '';
         // $category3 = '';
@@ -59,7 +60,8 @@ class ProductController extends Controller
         try {
             if(sizeof($params) > 0) {
                 foreach ($params as $key => $value) {
-                    if("brand" == $key) {
+                    $concatBrands = '';
+                    if("brand" == $key && "" !== $params["brand"]) {
                         $splitBrands = explode(',', $params["brand"]);
                         $concatBrands = '';
                         if(sizeof($splitBrands) > 1) {
@@ -133,6 +135,9 @@ class ProductController extends Controller
                     }
 
                     switch($key) {
+                        case 'user_id':
+                            $user_id = $params['user_id'];
+                        break;
                         case "category";
                             $category = $concatCategory;
                         break;
@@ -199,8 +204,11 @@ class ProductController extends Controller
                     
                 }
             }
-            
-            $exec = "EXEC [dbo].[sp_proc_get_items] @category='".$category."', @sub_category='".$sub_category."',@price_from=". $price_from .",@price_to=". $price_to .",@vendor='". $vendor ."',@brand='". $brand ."',@exclude_accessory=".$exclude_accessory.",@only_discounted=".$only_discounted.",@available_only=".$available_only.",@search_text='".$search_text."',@order_by='".$order_by."',@offset_rows=".$offset_rows.",@page_size=".$page_size;
+            if($user_id !== "") {
+                $exec = "EXEC [dbo].[sp_proc_get_items] @user_id=".$user_id.", @category='".$category."', @sub_category='".$sub_category."',@price_from=". $price_from .",@price_to=". $price_to .",@vendor='". $vendor ."',@brand='". $brand ."',@exclude_accessory=".$exclude_accessory.",@only_discounted=".$only_discounted.",@available_only=".$available_only.",@search_text='".$search_text."',@order_by='".$order_by."',@offset_rows=".$offset_rows.",@page_size=".$page_size;
+            } else {
+                $exec = "EXEC [dbo].[sp_proc_get_items] @user_id='".$user_id."', @category='".$category."', @sub_category='".$sub_category."',@price_from=". $price_from .",@price_to=". $price_to .",@vendor='". $vendor ."',@brand='". $brand ."',@exclude_accessory=".$exclude_accessory.",@only_discounted=".$only_discounted.",@available_only=".$available_only.",@search_text='".$search_text."',@order_by='".$order_by."',@offset_rows=".$offset_rows.",@page_size=".$page_size;
+            }
         //    print_r($exec );
         //     return response()->json(['data' =>$exec, 'status' => 400, "success" => false]);
 
@@ -291,6 +299,18 @@ class ProductController extends Controller
             return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
         } catch(Exception $e) {
             print_r($e->getMessage());
+            return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
+        }
+    }
+
+    public function getBrands(Request $request) {
+        
+        try {
+            $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Brands]");
+            
+            return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+        } catch(Exception $e) {
+            
             return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
         }
     }

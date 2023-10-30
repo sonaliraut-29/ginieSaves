@@ -177,11 +177,14 @@ class UserController extends Controller
             'Vendor' => 'required',
             'Item_Key' => 'required',
             'Price' => 'required',
+            'Item_name' => 'required',
+            'Item_Image_URL' => 'required',
+            'Item_URL' => 'required'
         ]);
 
         try {
             
-            $arrData = DB::statement("EXEC [dbo].[sp_proc_Add_Favourites] @Country_ID=".$request->Country_ID.", @User_ID=".$request->User_ID.",@Vendor='". $request->Vendor ."',@Item_Key=". $request->Item_Key .",@Price=". $request->Price."");
+            $arrData = DB::statement("EXEC [dbo].[sp_proc_Add_Favourites] @Country_ID=".$request->Country_ID.", @User_ID=".$request->User_ID.",@Vendor='". $request->Vendor ."',@Item_Key=". $request->Item_Key .",@Price=". $request->Price.", @Item_name='".$request->Item_name."', @Item_Image_URL=\"".$request->Item_Image_URL."\", @Item_URL='".$request->Item_URL."'");
             return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
             
         } catch(Exception $e) {
