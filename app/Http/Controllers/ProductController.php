@@ -216,10 +216,14 @@ class ProductController extends Controller
             $stmt = $pdo->prepare($exec,[\PDO::ATTR_CURSOR=>\PDO::CURSOR_SCROLL]);
             // $stmt = $pdo->query($exec);
             $stmt->execute();
-            $rowset1 = $stmt->fetchAll();
+            $rowset1 = $stmt->fetchAll(\PDO::FETCH_ASSOC);
            
             $stmt->nextRowset();
-            $rowset2 = $stmt->fetchAll();
+            $rowset2 = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+
+            $stmt->nextRowset();
+            $rowset6 = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             $rowset3 = 0;
             $rowset4 = 99999;
@@ -230,7 +234,37 @@ class ProductController extends Controller
                 $rowset5 = $rowset2[0]["Total_Items_Found"];
             }
             
-            return response()->json(['data' => $rowset1,"totalCount" => $rowset5, "min_price" => $rowset3, "max_price" => $rowset4, 'status' => 200, "success" => true]);
+            $category = [];
+            $sub_category = [];
+            $vendor = [];
+            $brand = [];
+
+            if($rowset6 && sizeof($rowset6) > 0) {
+                foreach($rowset6 as $item) {
+                    if($item['Filter_Name'] == "Category") {
+                        $category[] = $item;
+                    }
+                    if($item['Filter_Name'] == "Sub-Category") {
+                        $sub_category[] = $item;
+                    }
+                    if($item['Filter_Name'] == "Vendor") {
+                        $vendor[] = $item;
+                    }
+                    if($item['Filter_Name'] == "Brand") {
+                        $brand[] = $item;
+                    }
+                }
+            }
+            $sub_categories = [];
+            if($sub_category && sizeof($sub_category) > 0) {
+                foreach($sub_category as $item) {
+                    $sub_categories[] = (object) [
+                        "Category" => $item['Name2'],
+                        "Sub_Category" => $item['Name']
+                    ];
+                }
+            }
+            return response()->json(['data' => $rowset1,"totalCount" => $rowset5, "min_price" => $rowset3, "max_price" => $rowset4, 'category' => $rowset6,'sub_category' => $sub_categories,'vendor' => $vendor,'brand' => $brand,'status' => 200, "success" => true]);
         } catch(Exception $e) {
             print_r($e->getMessage());
             return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);

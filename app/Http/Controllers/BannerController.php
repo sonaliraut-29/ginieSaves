@@ -124,8 +124,15 @@ class BannerController extends Controller
                 $stmt = $pdo->query($sql);
                 $stmt->execute();
                 $rowset1 = $stmt->fetchAll();
+               
+                $stmt->nextRowset();
+                $rowset2 = $stmt->fetchAll();
+    
+                if(sizeof($rowset2) > 0) {
+                    $rowset2 = $rowset2[0]["Num_of_rows"];
+                }
                 
-                return response()->json(['data' => $rowset1, 'status' => 200, "success" => true]);
+                return response()->json(['data' => $rowset1, "totalCount" => $rowset2, 'status' => 200, "success" => true]);
             }
         } catch(Exception $e) {
             print_r($e->getMessage());
