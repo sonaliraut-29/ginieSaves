@@ -197,9 +197,21 @@ class UserController extends Controller
         
         try {
             
-            $arrData = DB::select("EXEC [dbo].[sp_proc_Get_Favourites] @Country_ID='".$Country_ID."', @User_ID='".$User_ID."'");
+            $exec = "EXEC [dbo].[sp_proc_Get_Favourites] @Country_ID=".$Country_ID.", @User_ID=".$User_ID.",@Start_offset=".$request->Start_offset.",@num_of_rows_required=".$request->num_of_rows_required;
+            $pdo = \DB::connection()->getPdo();
+            $sql = $exec;
+            $stmt = $pdo->query($sql);
+            $stmt->execute();
+            $rowset1 = $stmt->fetchAll();
+           
+            $stmt->nextRowset();
+            $rowset2 = $stmt->fetchAll();
 
-            return response()->json(['data' => $arrData, 'status' => 200, "success" => true]);
+            if(sizeof($rowset2) > 0) {
+                $rowset2 = $rowset2[0]["Num_Of_Rows"];
+            }
+
+            return response()->json(['data' => $rowset1, "totalCount" => $rowset2, 'status' => 200, "success" => true]);
             
         } catch(Exception $e) {
             
