@@ -202,10 +202,10 @@ class UserController extends Controller
             $sql = $exec;
             $stmt = $pdo->query($sql);
             $stmt->execute();
-            $rowset1 = $stmt->fetchAll();
+            $rowset1 = $stmt->fetchAll(\PDO::FETCH_ASSOC);
            
             $stmt->nextRowset();
-            $rowset2 = $stmt->fetchAll();
+            $rowset2 = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             if(sizeof($rowset2) > 0) {
                 $rowset2 = $rowset2[0]["Num_Of_Rows"];
