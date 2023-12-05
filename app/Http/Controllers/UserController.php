@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
 use Carbon\Carbon;
+use Laravel\Socialite\Facades\Socialite;
 
 class UserController extends Controller
 {
@@ -22,7 +23,7 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'refresh', 'create','logout', 'getCities','getGovernate','getCountries','forgotPassword']]);
+        $this->middleware('auth:api', ['except' => ['login', 'refresh', 'create','logout', 'getCities','getGovernate','getCountries','forgotPassword','socialLogin','callback']]);
     }
 
     public function create(Request $request) {
@@ -66,6 +67,7 @@ class UserController extends Controller
                 "userId" => $userId,
                 "user" => $user,
                 'access_token' => $token,
+                'token' => $token
             ];
             return response()->json(['data' => $res, 'status' => 200, "success" => true]);
             
@@ -262,6 +264,7 @@ class UserController extends Controller
     {
         return response()->json([
             'access_token' => $token,
+            'token' => $token,
             'token_type'   => 'bearer',
             'user'         => auth()->user(),
             'expires_in'   => auth()->factory()->getTTL() * 60 * 24
@@ -346,5 +349,44 @@ class UserController extends Controller
             
             return response()->json(['data' => $e->getMessage(), 'status' => 400, "success" => false]);
         }
+    }
+
+    public function socialLogin(Request $request, $provider) {
+        
+        return Socialite::driver($provider)->stateless()->redirect();
+    }
+
+    public function callback(Request $request, $provider) {
+        $socialite = Socialite::driver($provider)->stateless()->user();
+
+        $user_by_email = User::where('email', $socialite->email)->first();
+
+        if ($user_by_email) {
+            $user = $user_by_email;
+            $token = Auth::login($user);
+            
+        } 
+        else {
+
+            if("google" == $provider) {
+                $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Registration] @Name='".$socialite->getName()."', @Mobile='',@email='". $socialite->getEmail() ."',@Gender='',@City='',@Area='',@Nationality='',@DOB='',@YOB='',@password='',@User_ID_Google='".$socialite->getId()."',@User_ID_Apple=''");
+            }
+
+            if("apple" == $provider) {
+                $arrData = DB::statement("EXEC [dbo].[sp_proc_User_Registration] @Name='".$socialite->getName()."', @Mobile='',@email='". $socialite->getEmail() ."',@Gender='',@City='',@Area='',@Nationality='',@DOB='',@YOB='',@password='',@User_ID_Google='',@User_ID_Apple='".$socialite->getId()."'");
+            }
+            $user_by_email = User::where('email', $socialite->email)->first();
+            $token = Auth::login($user_by_email);
+            $user = $user_by_email;
+        }
+        
+
+        return response()->json([
+            'access_token' => $token,
+            'token' => $token,
+            'token_type'   => 'bearer',
+            'user'         => auth()->user(),
+            'expires_in'   => auth()->factory()->getTTL() * 60 * 24
+        ]);
     }
 }
